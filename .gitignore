@@ -1,0 +1,17 @@
+# Virtual environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Raw large caches (re-downloadable via ETL CLI)
+data/raw/
+.pytest_cache/
+.mypy_cache/
+
+# OS & IDE files
+.DS_Store
+.vscode/
+.idea/
+*.log
