@@ -1,0 +1,39 @@
+@prefix eutro: <https://shinigam2.github.io/eutrophication/> .
+@prefix period: <https://shinigam2.github.io/eutrophication/period/> .
+@prefix water: <https://shinigam2.github.io/eutrophication/water/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eutro:chlorophyll-alert eutro:thresholdUgL 25 .
+
+water:batorino a eutro:WaterBody ;
+    eutro:name "Озеро Баторино" ;
+    eutro:waterBodyId "batorino" .
+
+water:kuzmichi a eutro:WaterBody ;
+    eutro:name "Озеро Кузьмичи" ;
+    eutro:waterBodyId "kuzmichi" .
+
+water:lotviny a eutro:WaterBody ;
+    eutro:name "Озеро Лотвины" ;
+    eutro:waterBodyId "lotviny" .
+
+water:myadel a eutro:WaterBody ;
+    eutro:name "Озеро Мядель" ;
+    eutro:waterBodyId "myadel" .
+
+water:myastro a eutro:WaterBody ;
+    eutro:name "Озеро Мястро" ;
+    eutro:waterBodyId "myastro" .
+
+water:naroch a eutro:WaterBody ;
+    eutro:name "Озеро Нарочь" ;
+    eutro:waterBodyId "naroch" .
+
+water:rudakovo a eutro:WaterBody ;
+    eutro:name "Озеро Рудаково" ;
+    eutro:waterBodyId "rudakovo" .
+
+water:volchino a eutro:WaterBody ;
+    eutro:name "Озеро Волчино" ;
+    eutro:waterBodyId "volchino" .
+

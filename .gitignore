@@ -9,6 +9,7 @@ __pycache__/
 data/raw/
 .pytest_cache/
 .mypy_cache/
+data/knowledge_graph/.*.lock
 
 # OS & IDE files
 .DS_Store
