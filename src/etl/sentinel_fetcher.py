@@ -87,9 +87,9 @@ GDAL_COG_ENV = {
     "CPL_VSIL_CURL_ALLOWED_EXTENSIONS": ".tif,.TIF",
     "GDAL_HTTP_MULTIRANGE": "YES",
     "GDAL_HTTP_MERGE_CONSECUTIVE_RANGES": "YES",
-    "GDAL_HTTP_MAX_RETRY": "3",
-    "GDAL_HTTP_RETRY_DELAY": "1",
-    "GDAL_HTTP_TIMEOUT": "30",
+    "GDAL_HTTP_MAX_RETRY": "5",
+    "GDAL_HTTP_RETRY_DELAY": "2",
+    "GDAL_HTTP_TIMEOUT": "60",
 }
 
 # Максимальный размер общего окна (м), при котором все озёра читаются за один HTTP-запрос
