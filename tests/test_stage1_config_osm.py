@@ -38,3 +38,17 @@ def test_lakes_geojson_geometries_valid_and_areas_match() -> None:
     # Проверяем, что острова реально вырезаны из полигонов Мяделя и Нарочи
     assert geoms["myadel"][0]["islands_count"] >= 5
     assert geoms["naroch"][0]["islands_count"] >= 1
+
+
+def test_ecological_context_present_for_part3() -> None:
+    cfg = load_config()
+    active = cfg.get_lakes()
+    assert len(active) == 8  # 8 активных + 1 резерв (rossokhi)
+    by_id = {wb.id: wb for wb in cfg.water_bodies}
+    assert by_id["rossokhi"].enabled is False
+    for wb in active:
+        assert "Нарочанский" in wb.ecological_context.protected_area
+        assert wb.ecological_context.chemical_treatment_allowed is False
+    assert "batorino" in by_id["myastro"].ecological_context.cascade_inflow_from
+    assert by_id["batorino"].ecological_context.cascade_outflow_to == "myastro"
+

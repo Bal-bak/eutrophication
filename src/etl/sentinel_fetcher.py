@@ -72,6 +72,7 @@ PROBE_JSON_PATH = INTERIM_DIR / "lake_pixel_probe_2026.json"
 #   rededge1 (B05, 705 нм, 20м) — пик отражения фитопланктона «красный край» (NDCI)
 #   rededge2 (B06, 740 нм, 20м) — дополнительный канал для плотного цветения и GLORIA
 #   nir      (B08, 842 нм, 10м) — контроль поверхностной плёнки и взвеси
+#   swir16   (B11, 1610 нм, 20м) — детектор солнечного блика и дымки Sen2Cor (вода поглощает 99,99%)
 SPECTRAL_BANDS: list[tuple[str, str]] = [
     ("blue", "b02_blue"),
     ("green", "b03_green"),
@@ -79,6 +80,7 @@ SPECTRAL_BANDS: list[tuple[str, str]] = [
     ("rededge1", "b05_rededge1"),
     ("rededge2", "b06_rededge2"),
     ("nir", "b08_nir"),
+    ("swir16", "b11_swir1"),
 ]
 
 # Оптимальные настройки GDAL/libcurl для быстрого HTTP Range чтения Cloud-Optimized GeoTIFF
@@ -520,15 +522,34 @@ def process_single_scene(
                     val = bvals.get(col_name, float("nan"))
                     rec[col_name] = None if np.isnan(val) else round(val, 6)
 
+                b02 = bvals.get("b02_blue", float("nan"))
                 b03 = bvals.get("b03_green", float("nan"))
                 b04 = bvals.get("b04_red", float("nan"))
                 b05 = bvals.get("b05_rededge1", float("nan"))
+                b11 = bvals.get("b11_swir1", float("nan"))
 
                 ndci = _safe_normalized_diff(b05, b04)
                 ndti = _safe_normalized_diff(b04, b03)
 
                 rec["ndci"] = None if ndci is None else round(ndci, 5)
                 rec["ndti"] = None if ndti is None else round(ndti, 5)
+                rec["b03_b02_ratio"] = (
+                    round(float(b03 / b02), 4)
+                    if (not np.isnan(b02) and not np.isnan(b03) and b02 > 1e-5 and b03 > 0)
+                    else None
+                )
+                rec["b04_b02_ratio"] = (
+                    round(float(b04 / b02), 4)
+                    if (not np.isnan(b02) and not np.isnan(b04) and b02 > 1e-5 and b04 > 0)
+                    else None
+                )
+                rec["b05_b04_ratio"] = (
+                    round(float(b05 / b04), 4)
+                    if (not np.isnan(b04) and not np.isnan(b05) and b04 > 1e-5 and b05 > 0)
+                    else None
+                )
+                # Флаг сильного солнечного блика или остаточной дымки Sen2Cor (чистая вода на 1610 нм ~ 0)
+                rec["sun_glint_flag"] = bool(not np.isnan(b11) and b11 > 0.03)
 
                 if ndci is not None:
                     chl_mishra = _compute_mishra_chl_a(ndci)
@@ -898,6 +919,48 @@ def run_probe(
     return summary_df
 
 
+def filter_redundant_overlapping_tiles(
+    scenes: list[dict[str, Any]],
+    lakes_geoms: dict[str, tuple[dict[str, Any], Polygon | MultiPolygon]],
+) -> list[dict[str, Any]]:
+    """Отбрасывает избыточные соседние тайлы на ту же дату, если другой тайл уже покрывает все их озёра.
+
+    Пример: в регионе Нарочь+Мядель тайл MGRS-35UMA покрывает 8/8 озёр, а соседний
+    тайл MGRS-35UMB в тот же пролёт дублирует только 4 северных озера. Отбрасывая
+    строгое подмножество в тот же день, мы ускоряем выгрузку в 2 раза без потери дат!
+    """
+    by_day_platform: dict[tuple[str, str], list[tuple[dict[str, Any], frozenset[str]]]] = {}
+    for sc in scenes:
+        props = sc.get("properties", {})
+        dt = str(props.get("datetime", ""))[:10]
+        platform = str(props.get("platform") or sc["id"].split("_")[0])
+        fp = shape(sc["geometry"])
+        covered = frozenset(
+            lid for lid, (_, geom) in lakes_geoms.items() if fp.intersects(geom)
+        )
+        if not covered:
+            continue
+        by_day_platform.setdefault((dt, platform), []).append((sc, covered))
+
+    kept: list[dict[str, Any]] = []
+    for _, items in sorted(by_day_platform.items()):
+        # Сортируем от наибольшего числа покрытых озёр к меньшему, затем по меньшей облачности
+        items.sort(
+            key=lambda pair: (
+                -len(pair[1]),
+                float(pair[0].get("properties", {}).get("eo:cloud_cover", 100.0)),
+            )
+        )
+        covered_so_far: set[str] = set()
+        for sc, cov_set in items:
+            if not cov_set.issubset(covered_so_far):
+                kept.append(sc)
+                covered_so_far.update(cov_set)
+
+    kept.sort(key=lambda f: (f["properties"].get("datetime", ""), f["id"]))
+    return kept
+
+
 def fetch_all_scenes(
     cfg: ProjectConfig,
     start_date: str | None = None,
@@ -910,7 +973,7 @@ def fetch_all_scenes(
     """Этап 4: полная многолетняя выгрузка реальных пролётов Sentinel-2 с кэшированием сцен."""
     start = start_date or cfg.pipeline.start_date
     end = end_date or cfg.pipeline.end_date
-    lakes_geoms = load_lakes_geometries(lake_ids=lake_ids, only_enabled=True)
+    lakes_geoms = load_lakes_geometries(lake_ids=lake_ids, only_enabled=lake_ids is None)
     if not lakes_geoms:
         raise ValueError("Нет активных озёр для выгрузки Sentinel-2.")
 
@@ -931,7 +994,11 @@ def fetch_all_scenes(
         scenes = [
             s for s in scenes if int(s["properties"]["datetime"][5:7]) in months
         ]
-    print(f"[S2] Всего найдено уникальных сцен после дедупликации: {len(scenes)}")
+    before_tile_dedup = len(scenes)
+    scenes = filter_redundant_overlapping_tiles(scenes, lakes_geoms)
+    print(
+        f"[S2] Найдено сцен: {before_tile_dedup}, после отсечения перекрывающихся дубль-тайлов: {len(scenes)}"
+    )
 
     SENTINEL_RAW_DIR.mkdir(parents=True, exist_ok=True)
     cache_dir = SENTINEL_RAW_DIR / "scenes_cache"

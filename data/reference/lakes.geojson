@@ -37,6 +37,13 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "dimictic_deep",
+        "cascade_inflow_from": [
+          "myastro"
+        ],
+        "cascade_outflow_to": "р. Нарочанка",
         "morphometry_source": "Озёра Беларуси / Блакітная кніга Беларусі; Бюллетени БГУ",
         "notes": "Крупнейшее озеро Беларуси; олиго-мезотрофное, эталон чистой воды с 40-летним рядом БГУ."
       },
@@ -3948,6 +3955,13 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "weakly_stratified",
+        "cascade_inflow_from": [
+          "batorino"
+        ],
+        "cascade_outflow_to": "naroch",
         "morphometry_source": "Озёра Беларуси / Блакітная кніга Беларусі; Бюллетени БГУ",
         "notes": "Среднее звено Нарочанского каскада; мезотрофное, принимает сток из оз. Баторино."
       },
@@ -6553,6 +6567,11 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "polymictic_shallow",
+        "cascade_inflow_from": [],
+        "cascade_outflow_to": "myastro",
         "morphometry_source": "Озёра Беларуси / Блакітная кніга Беларусі (V = S × H_ср = 15,03 млн м³)",
         "notes": "Мелководное эвтрофное озеро с высоким удельным водосбором (14,8×); наиболее склонно к цветению."
       },
@@ -7430,6 +7449,13 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "dimictic_deep",
+        "cascade_inflow_from": [
+          "volchino"
+        ],
+        "cascade_outflow_to": "р. Мяделка",
         "morphometry_source": "Справочник Мядельской группы озёр (Озёра Беларуси)",
         "notes": "Крупнейший водоём Мядельской группы; мезотрофный с чертами олиготрофности, 8 островов."
       },
@@ -11143,6 +11169,11 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "polymictic_shallow",
+        "cascade_inflow_from": [],
+        "cascade_outflow_to": "р. Страча",
         "morphometry_source": "Справочник Мядельской группы озёр (Озёра Беларуси)",
         "notes": "Мелководное озеро с огромным удельным водосбором (15,9×), илистым дном и низкой прозрачностью."
       },
@@ -11822,6 +11853,11 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "dimictic_deep",
+        "cascade_inflow_from": [],
+        "cascade_outflow_to": "myadel",
         "morphometry_source": "Справочник Мядельской группы озёр (Озёра Беларуси)",
         "notes": "Самое глубокое озеро Мядельской группы; выраженная температурная стратификация."
       },
@@ -12619,6 +12655,13 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "dimictic_deep",
+        "cascade_inflow_from": [
+          "rossokhi"
+        ],
+        "cascade_outflow_to": "р. Мяделка",
         "morphometry_source": "Справочник Мядельской группы озёр (Озёра Беларуси)",
         "notes": "Мезотрофное проточное озеро; принимает сток со стороны оз. Россохи и Ходосы."
       },
@@ -13300,6 +13343,11 @@
         ],
         "attention_ug_l": 15.0,
         "bloom_ug_l": 25.0,
+        "protected_area": "ГПУ «Национальный парк Нарочанский» (ООПТ)",
+        "chemical_treatment_allowed": false,
+        "stratification_type": "dimictic_deep",
+        "cascade_inflow_from": [],
+        "cascade_outflow_to": "бессточное",
         "morphometry_source": "Справочник Мядельской группы озёр (Озёра Беларуси)",
         "notes": "Глубокая чашеобразная котловина, высокая прозрачность (≥5 м)."
       },

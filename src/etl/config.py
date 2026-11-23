@@ -48,6 +48,17 @@ class PipelineConfig:
 
 
 @dataclass(frozen=True)
+class EcologicalContext:
+    """Экологический и природоохранный контекст озера для Графа знаний (Часть 3)."""
+
+    protected_area: str = ""
+    chemical_treatment_allowed: bool = False
+    stratification_type: str = "unknown"
+    cascade_inflow_from: tuple[str, ...] = ()
+    cascade_outflow_to: str = ""
+
+
+@dataclass(frozen=True)
 class WaterBodyConfig:
     """Паспорт одного водоёма из configs/water_bodies.yaml."""
 
@@ -69,6 +80,7 @@ class WaterBodyConfig:
     morphometry_source: str = ""
     notes: str = ""
     thresholds: Thresholds = field(default_factory=Thresholds)
+    ecological_context: EcologicalContext = field(default_factory=EcologicalContext)
 
     @property
     def watershed_ratio(self) -> float:
@@ -168,6 +180,19 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
         else:
             thr = default_thresholds
 
+        eco_raw = item.get("ecological_context") or {}
+        eco = EcologicalContext(
+            protected_area=str(eco_raw.get("protected_area", "")),
+            chemical_treatment_allowed=bool(
+                eco_raw.get("chemical_treatment_allowed", False)
+            ),
+            stratification_type=str(eco_raw.get("stratification_type", "unknown")),
+            cascade_inflow_from=tuple(
+                str(x) for x in (eco_raw.get("cascade_inflow_from") or [])
+            ),
+            cascade_outflow_to=str(eco_raw.get("cascade_outflow_to", "")),
+        )
+
         lakes.append(
             WaterBodyConfig(
                 id=wb_id,
@@ -188,6 +213,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
                 morphometry_source=str(item.get("morphometry_source", "")),
                 notes=str(item.get("notes", "")),
                 thresholds=thr,
+                ecological_context=eco,
             )
         )
 

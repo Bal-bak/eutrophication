@@ -53,6 +53,12 @@ water_bodies:
     watershed_km2: 199.0
     has_lab_data: true
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "dimictic_deep"
+      cascade_inflow_from: ["myastro"]
+      cascade_outflow_to: "р. Нарочанка"
     morphometry_source: "Озёра Беларуси / Блакітная кніга Беларусі; Бюллетени БГУ"
     notes: "Крупнейшее озеро Беларуси; олиго-мезотрофное, эталон чистой воды с 40-летним рядом БГУ."
 
@@ -70,6 +76,12 @@ water_bodies:
     watershed_km2: 130.0
     has_lab_data: true
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "weakly_stratified"
+      cascade_inflow_from: ["batorino"]
+      cascade_outflow_to: "naroch"
     morphometry_source: "Озёра Беларуси / Блакітная кніга Беларусі; Бюллетени БГУ"
     notes: "Среднее звено Нарочанского каскада; мезотрофное, принимает сток из оз. Баторино."
 
@@ -87,6 +99,12 @@ water_bodies:
     watershed_km2: 92.4
     has_lab_data: true
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "polymictic_shallow"
+      cascade_inflow_from: []
+      cascade_outflow_to: "myastro"
     morphometry_source: "Озёра Беларуси / Блакітная кніга Беларусі (V = S × H_ср = 15,03 млн м³)"
     notes: "Мелководное эвтрофное озеро с высоким удельным водосбором (14,8×); наиболее склонно к цветению."
 
@@ -106,6 +124,12 @@ water_bodies:
     watershed_km2: 89.2
     has_lab_data: false
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "dimictic_deep"
+      cascade_inflow_from: ["volchino"]
+      cascade_outflow_to: "р. Мяделка"
     morphometry_source: "Справочник Мядельской группы озёр (Озёра Беларуси)"
     notes: "Крупнейший водоём Мядельской группы; мезотрофный с чертами олиготрофности, 8 островов."
 
@@ -123,6 +147,12 @@ water_bodies:
     watershed_km2: 11.0
     has_lab_data: false
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "polymictic_shallow"
+      cascade_inflow_from: []
+      cascade_outflow_to: "р. Страча"
     morphometry_source: "Справочник Мядельской группы озёр (Озёра Беларуси)"
     notes: "Мелководное озеро с огромным удельным водосбором (15,9×), илистым дном и низкой прозрачностью."
 
@@ -140,6 +170,12 @@ water_bodies:
     watershed_km2: 3.68
     has_lab_data: false
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "dimictic_deep"
+      cascade_inflow_from: []
+      cascade_outflow_to: "myadel"
     morphometry_source: "Справочник Мядельской группы озёр (Озёра Беларуси)"
     notes: "Самое глубокое озеро Мядельской группы; выраженная температурная стратификация."
 
@@ -157,6 +193,12 @@ water_bodies:
     watershed_km2: 1.4
     has_lab_data: false
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "dimictic_deep"
+      cascade_inflow_from: ["rossokhi"]
+      cascade_outflow_to: "р. Мяделка"
     morphometry_source: "Справочник Мядельской группы озёр (Озёра Беларуси)"
     notes: "Мезотрофное проточное озеро; принимает сток со стороны оз. Россохи и Ходосы."
 
@@ -174,6 +216,12 @@ water_bodies:
     watershed_km2: 1.15
     has_lab_data: false
     enabled: true
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "dimictic_deep"
+      cascade_inflow_from: []
+      cascade_outflow_to: "бессточное"
     morphometry_source: "Справочник Мядельской группы озёр (Озёра Беларуси)"
     notes: "Глубокая чашеобразная котловина, высокая прозрачность (≥5 м)."
 
@@ -192,6 +240,12 @@ water_bodies:
     has_lab_data: false
     enabled: false
     exclusion_reason: "Резервное валидное озеро (316 чистых пикс., 93,3% воды, B08/B03=0,59) — оставлено для живой демонстрации добавления нового водоёма в систему на защите."
+    ecological_context:
+      protected_area: "ГПУ «Национальный парк Нарочанский» (ООПТ)"
+      chemical_treatment_allowed: false
+      stratification_type: "weakly_stratified"
+      cascade_inflow_from: []
+      cascade_outflow_to: "lotviny"
     morphometry_source: "Справочник Мядельской группы озёр (Озёра Беларуси)"
     notes: "Малое лесное озеро в цепочке стока к Лотвинам и Мяделю; проходит все критерии Sentinel-2."
 
