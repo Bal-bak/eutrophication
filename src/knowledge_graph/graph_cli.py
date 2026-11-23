@@ -1,4 +1,4 @@
-"""Записывает водоёмы, прогнозы и наблюдения в локальный Turtle-файл."""
+"""Записывает водоёмы, прогнозы и наблюдения в Turtle или Oxigraph."""
 
 import argparse
 from calendar import monthrange
@@ -7,7 +7,9 @@ import json
 from math import isfinite
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from urllib.error import HTTPError
 from urllib.parse import quote
+from urllib.request import Request, urlopen
 
 from filelock import FileLock, Timeout
 from rdflib import Graph, Namespace
@@ -212,13 +214,40 @@ def update_file(graph_path, *operations):
     return graph
 
 
-def show_history(graph, water_body_id):
-    result = graph.query(PREFIXES + HISTORY)
-    columns = [str(var) for var in result.vars]
+def oxigraph_post(endpoint, route, content, media_type):
+    request = Request(
+        f"{endpoint.rstrip('/')}/{route}",
+        data=content,
+        headers={"Content-Type": media_type, "Accept": "application/sparql-results+json"},
+    )
+    try:
+        with urlopen(request, timeout=15) as response:
+            return response.read()
+    except HTTPError as error:
+        details = error.read().decode("utf-8", errors="replace").strip()
+        raise OSError(f"Oxigraph HTTP {error.code}\n{details}") from error
+
+
+def apply_updates(graph_path, endpoint, *operations):
+    if endpoint is None:
+        return update_file(graph_path, *operations)
+    update = PREFIXES + ";\n".join(operations)
+    oxigraph_post(endpoint, "update", update.encode("utf-8"), "application/sparql-update")
+    return None
+
+
+def show_history(graph, water_body_id, *, endpoint=None):
+    query = PREFIXES + HISTORY
+    if endpoint is None:
+        payload = graph.query(query).serialize(format="json")
+    else:
+        payload = oxigraph_post(endpoint, "query", query.encode("utf-8"), "application/sparql-query")
+
+    result = json.loads(payload)
+    columns = result["head"]["vars"]
     rows = []
-    for binding in result:
-        row = {column: str(value) if value is not None else None
-               for column, value in zip(columns, binding)}
+    for binding in result["results"]["bindings"]:
+        row = {column: binding.get(column, {}).get("value") for column in columns}
         if water_body_id is not None and row["waterBodyId"] != water_body_id:
             continue
         for column in ("predictedUgL", "thresholdUgL", "observedUgL"):
@@ -230,8 +259,9 @@ def show_history(graph, water_body_id):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("phase", choices=("sync-lakes", "forecast", "observe", "history"))
-    parser.add_argument("--graph", type=Path, default=DEFAULT_GRAPH, help="путь к Turtle-файлу")
+    parser.add_argument("phase", choices=("import-ttl", "sync-lakes", "forecast", "observe", "history"))
+    parser.add_argument("--graph", type=Path, help="путь к Turtle-файлу")
+    parser.add_argument("--endpoint", help="адрес Oxigraph, например http://127.0.0.1:7878")
     parser.add_argument("--geojson", type=Path, help="файл контуров для команды sync-lakes")
     parser.add_argument("--water-body-id", help="ID из реестра водоёмов")
     parser.add_argument("--name", help="название водоёма при первой записи")
@@ -240,15 +270,30 @@ def main():
     args = parser.parse_args()
 
     record_fields = (args.name, args.period_start, args.value)
-    graph_path = args.graph.expanduser().resolve()
+    graph_path = (args.graph or DEFAULT_GRAPH).expanduser().resolve()
+    if args.phase == "import-ttl":
+        if not args.endpoint:
+            parser.error("для import-ttl укажи --endpoint")
+        if args.geojson is not None or args.water_body_id is not None or any(field is not None for field in record_fields):
+            parser.error("import-ttl принимает только --endpoint и --graph")
+        try:
+            oxigraph_post(args.endpoint, "store?default", graph_path.read_bytes(), "text/turtle")
+        except (OSError, ValueError) as error:
+            parser.exit(1, f"Ошибка импорта {graph_path} в {args.endpoint}\n{error}\n")
+        print(f"Граф загружен в Oxigraph: {args.endpoint}")
+        return
+
+    if args.endpoint is not None and args.graph is not None:
+        parser.error("выбери одно хранилище: --endpoint или --graph")
+
     if args.phase == "sync-lakes":
         if args.water_body_id is not None or any(field is not None for field in record_fields):
-            parser.error("sync-lakes принимает только --geojson и --graph")
+            parser.error("sync-lakes принимает только --geojson, --graph и --endpoint")
         geojson_path = (args.geojson or DEFAULT_GEOJSON).expanduser().resolve()
         try:
             operations = lake_import_operations(geojson_path)
             if operations:
-                update_file(graph_path, *operations)
+                apply_updates(graph_path, args.endpoint, *operations)
         except (OSError, ValueError, SyntaxError, ParserError, Timeout) as error:
             parser.exit(1, f"Ошибка импорта озёр из {geojson_path}\n{error}\n")
         print(f"Озёр синхронизировано: {len(operations)}")
@@ -258,7 +303,7 @@ def main():
         parser.error("--geojson доступен только для sync-lakes")
     if args.phase == "history":
         if any(field is not None for field in record_fields):
-            parser.error("history принимает только --water-body-id и --graph")
+            parser.error("history принимает только --water-body-id, --graph и --endpoint")
     else:
         if not args.water_body_id or args.period_start is None or args.value is None:
             parser.error("укажи --water-body-id, --period-start и --value")
@@ -266,14 +311,14 @@ def main():
 
     try:
         if args.phase == "forecast":
-            graph = update_file(graph_path, SEED_RULE, operation, CREATE_ALERTS)
+            graph = apply_updates(graph_path, args.endpoint, SEED_RULE, operation, CREATE_ALERTS)
         elif args.phase == "observe":
-            graph = update_file(graph_path, operation)
+            graph = apply_updates(graph_path, args.endpoint, operation)
         else:
-            graph = load_graph(graph_path)
-        show_history(graph, args.water_body_id)
-    except (OSError, SyntaxError, ParserError, Timeout) as error:
-        parser.exit(1, f"Ошибка при работе с {graph_path}\n{error}\n")
+            graph = load_graph(graph_path) if args.endpoint is None else None
+        show_history(graph, args.water_body_id, endpoint=args.endpoint)
+    except (OSError, ValueError, SyntaxError, ParserError, Timeout) as error:
+        parser.exit(1, f"Ошибка при работе с {args.endpoint or graph_path}\n{error}\n")
 
 
 if __name__ == "__main__":

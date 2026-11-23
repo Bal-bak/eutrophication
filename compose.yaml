@@ -1,7 +1,7 @@
 services:
   oxigraph:
     image: ghcr.io/oxigraph/oxigraph:latest
-    command: ["serve", "--location", "/data", "--bind", "0.0.0.0:7878"]
+    command: ["serve", "--location", "/data", "--bind", "0.0.0.0:7878", "--cors"]
     ports:
       - "127.0.0.1:7878:7878"
     volumes:
