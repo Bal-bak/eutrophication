@@ -13,3 +13,6 @@ pytest>=8.0.0
 # Часть 3: RDF, SPARQL и локальное хранение графа в Turtle
 rdflib>=7.1,<8
 filelock>=3.16,<4
+
+# Инфраструктура: загрузка витрин и контуров в PostgreSQL + PostGIS
+psycopg[binary]>=3.2,<4
