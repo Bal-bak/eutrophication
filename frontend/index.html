@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мониторинг эвтрофикации водоёмов Беларуси</title>
+<meta name="description" content="Карта риска эвтрофикации озёр Беларуси: наблюдения Sentinel-2 и лабораторные пробы, прогноз на 10 дней.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">≈</span>
+      <div>
+        <h1>Эвтрофикация водоёмов</h1>
+        <p id="sub">Наблюдения и прогноз на 10 дней</p>
+      </div>
+    </div>
+
+    <div class="searchbox">
+      <label class="sr-only" for="q">Поиск водоёма</label>
+      <input id="q" type="search" placeholder="Найти озеро…" autocomplete="off" aria-controls="suggest" aria-expanded="false">
+      <div id="suggest" class="suggest" role="listbox" hidden></div>
+    </div>
+
+    <div class="controls">
+      <div class="segmented" id="modeSwitch" role="tablist" aria-label="Источник данных">
+        <button type="button" class="seg active" data-mode="satellite" role="tab" aria-selected="true">Спутник</button>
+        <button type="button" class="seg" data-mode="lab" role="tab" aria-selected="false">Лаборатория</button>
+      </div>
+      <label class="datefield">
+        <span>Дата</span>
+        <input type="date" id="dinp">
+      </label>
+      <div class="stepbtns">
+        <button type="button" class="iconbtn" id="prev" aria-label="Предыдущая декада" title="Предыдущая декада">‹</button>
+        <button type="button" class="iconbtn" id="next" aria-label="Следующая декада" title="Следующая декада">›</button>
+      </div>
+      <button type="button" class="btn ghost" id="metricsBtn">Метрики</button>
+      <button type="button" class="btn" id="refresh">Обновить</button>
+    </div>
+  </header>
+
+  <div id="stub" class="banner stub" hidden><span></span></div>
+  <div id="apierr" class="banner alert" role="alert" hidden>
+    <span id="apierr-msg"></span><button type="button" class="btn small" id="retry">Повторить</button>
+  </div>
+
+  <main class="stage">
+    <div id="map" role="application" aria-label="Карта водоёмов Беларуси"></div>
+
+    <div class="legend" aria-label="Легенда уровня риска">
+      <strong>Уровень риска</strong>
+      <span><i class="dot ok"></i>Норма</span>
+      <span><i class="dot warn"></i>Внимание</span>
+      <span><i class="dot bad"></i>Опасность</span>
+      <span><i class="dot err"></i>Нет наблюдения</span>
+    </div>
+
+    <div class="mapnote" id="mapnote">
+      <div>
+        <h2>Выберите водоём на карте</h2>
+        <p>Цвет контура показывает прогноз риска эвтрофикации на 10 дней. Нажмите на озеро, чтобы открыть паспорт, прогноз и историю наблюдений.</p>
+      </div>
+    </div>
+
+    <aside id="panel" class="panel" hidden aria-label="Информация о водоёме">
+      <div class="panel-inner" id="panelBody" aria-live="polite"></div>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span><strong>Исследовательский прототип СППР.</strong> Не заменяет лабораторный контроль и не является оповещением в реальном времени.</span>
+    <span id="upd" class="upd" aria-live="polite"></span>
+  </footer>
+</div>
+
+<div id="metricsModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="metricsTitle">
+  <div class="modal-card">
+    <header><h2 id="metricsTitle">Качество моделей и данных</h2><button type="button" class="iconbtn" id="metricsClose" aria-label="Закрыть">×</button></header>
+    <div id="metrics" class="modal-body"><p class="hint">Загрузка…</p></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
